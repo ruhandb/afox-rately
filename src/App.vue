@@ -1,17 +1,24 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <CreateRate />
+    <button @click="test">Test</button>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import CreateRate from './components/CreateRate.vue'
+import firebase from './config/firebase'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    CreateRate
+  },
+  methods: {
+    test: () => {
+      firebase.firestore().collection("teste").add({date: new Date()});
+    }
   }
 }
 </script>
