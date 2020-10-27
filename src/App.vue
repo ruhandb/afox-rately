@@ -1,19 +1,19 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <CreateRate />
+    <HelloWorld msg="Teste" />
     <button @click="test">Test</button>
   </div>
 </template>
 
 <script>
-import CreateRate from './components/CreateRate.vue'
+import HelloWorld from './components/HelloWorld'
 import firebase from './config/firebase'
 
 export default {
   name: 'App',
   components: {
-    CreateRate
+    HelloWorld
   },
   methods: {
     test: () => {
