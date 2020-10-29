@@ -16,19 +16,13 @@ const routes = {
 }
 new Vue({
   data: {
-    currentRoute: window.location.pathname,
-    route: routes['/']
+    currentRoute: window.location.pathname
   },
   mounted() {
     firebase.auth().onAuthStateChanged(user => {
       console.log("user",user);
-      var pathName = "";
-      for (const path of Object.keys(routes).reverse()) {
-        if(this.currentRoute.toLowerCase() === path || this.currentRoute.toLowerCase().startsWith(path + "/") || this.currentRoute.toLowerCase().startsWith(path + "?")){
-          pathName = path;
-        }
-      }
-      if(!user && routes[pathName].authRequired){
+      var pathName = this.getRoutePath();
+      if(!user && routes[pathName] && routes[pathName].authRequired){
         var idxqp = window.location.href.indexOf('?');
         var queryParams = idxqp > 0 ? "&" + window.location.href.substring(idxqp + 1) : "";
         window.location.href = '/login?redirect=' + window.location.pathname + queryParams;
@@ -37,44 +31,51 @@ new Vue({
   },
   computed: {
     ViewComponent () {
-      for (const path of Object.keys(routes).reverse()) {        
-        const route = routes[path];
-        if(this.currentRoute.toLowerCase() === path || this.currentRoute.toLowerCase().startsWith(path + "/") || this.currentRoute.toLowerCase().startsWith(path + "?")){
-          var queryObj = {}
-          var idxqp = window.location.href.indexOf('?');
-          if(route.query) {
-            var pathParams = this.currentRoute === path ? "" : this.currentRoute.substring(path.length + 1, idxqp < 0 ? this.currentRoute.length : idxqp).split('/');
-            console.log("pathParams",pathParams);
-            route.query.forEach((value, index) => {
+      var pathName = this.getRoutePath();
+      const route = routes[pathName];
+      if(route) {
+        var queryObj = {}
+        var idxqp = window.location.href.indexOf('?');
+        if(route.query) {
+          var pathParams = this.currentRoute === pathName ? "" : this.currentRoute.substring(pathName.length + 1, idxqp < 0 ? this.currentRoute.length : idxqp).split('/');
+          route.query.forEach((value, index) => {
+            if(pathParams[index]) {
               queryObj[value] = pathParams[index];
-            });            
-          }
-          var queryParamsStr = window.location.href.substring(idxqp + 1);
-          var queryParams = idxqp > 0 ? window.location.href.substring(idxqp + 1).split('&') : [];
-          console.log("queryParams",queryParams);
-          
-          if(queryParamsStr.length > 0 && queryParamsStr.startsWith('redirect')) {
-            var idxeq = queryParamsStr.indexOf('=');
-            queryObj["redirect"] = queryParamsStr.substring(idxeq + 1).replace('&', '?');
-          }else{
-            queryParams.forEach(value => {
-              var kv = value.split("=");
-              queryObj[kv[0]] = kv[1];
-            });
-          }
-
-          Vue.prototype.$queryParams = queryObj;
-          Vue.prototype.$currentRoute = path;
-          console.log("$queryParams",queryObj);
-
-          /* console.log(route.authRequired, this.isAuthenticated);
-          if(route.authRequired && !this.isAuthenticated){
-           // return Login;
-          } */
-          return route.component;
+            }
+          });            
         }
-      }  
+        var queryParamsStr = window.location.href.substring(idxqp + 1);
+        var queryParams = idxqp > 0 ? window.location.href.substring(idxqp + 1).split('&') : [];
+        
+        if(queryParamsStr.length > 0 && queryParamsStr.startsWith('redirect')) {
+          var idxeq = queryParamsStr.indexOf('=');
+          queryObj["redirect"] = queryParamsStr.substring(idxeq + 1).replace('&', '?');
+        }else{
+          queryParams.forEach(value => {
+            var kv = value.split("=");
+            queryObj[kv[0]] = kv[1];
+          });
+        }
+
+        Vue.prototype.$queryParams = queryObj;
+        Vue.prototype.$currentRoute = pathName;
+        console.log("$queryParams",queryObj);
+        return route.component;
+      }
       return NotFound;
+    }
+  },
+  methods: {
+    matchPath(path){
+      return this.currentRoute.toLowerCase() === path || this.currentRoute.toLowerCase().startsWith(path + "/") || this.currentRoute.toLowerCase().startsWith(path + "?");
+    },
+    getRoutePath(){
+      for (const path of Object.keys(routes).reverse()) {
+        if(this.matchPath(path)){
+          return path;
+        }
+      }
+      return null;
     }
   },
   render (h) { return h(this.ViewComponent) }
