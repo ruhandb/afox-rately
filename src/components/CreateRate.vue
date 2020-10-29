@@ -1,10 +1,10 @@
 <template>
   <div>CreateRate
+      <div>{{ id }}</div>
       <div>
           <label>Nome:</label>
-          <input v-model="name">
-          <button @click="create">Add</button>
-          
+          <input :disabled="!createMode" v-model="name">
+          <button v-if="createMode" @click="create">Add</button>          
       </div>
     <div>
         <ItemRateAdd :rateId="id" />
@@ -17,19 +17,39 @@
 <script>
 import Vue from 'vue'
 import firebase from '../config/firebase'
-import ItemRateAdd from './ItemRateAdd'
-import ItemRateView from './ItemRateView'
+import ItemRateAdd from './ItemRate/ItemRateAdd'
+import ItemRateView from './ItemRate/ItemRateView'
 export default {
     name: "CreateRate",
     components: { ItemRateAdd, ItemRateView },
     data() {
         return {
+            createMode: true,
             id: '',
             name: '',
             itens: {}
         };
     },
+    mounted() {
+        //console.log(Vue.prototype.$queryParams);
+        if (Vue.prototype.$queryParams.id) {
+            this.createMode = false;
+            this.bind(Vue.prototype.$queryParams.id);
+        }
+    },
     methods: {
+        bind(id) {
+            firebase.firestore().collection("Rates").doc(id).get().then(snap => {
+                if (snap.exists) {
+                    var data = snap.data();
+                    this.id = id;
+                    this.name = data.name;
+                    this.bindItems();                    
+                } else {
+                    window.location.pathname = Vue.prototype.$currentRoute;
+                }
+            })
+        },
         create() {
             var that = this;
             firebase.firestore().collection("Rates").add({
@@ -38,6 +58,7 @@ export default {
             }).then(snap => {
                 this.id = snap.id;
                 console.log("Created!");
+                this.createMode = false;
                 this.bindItems();
             });
         },

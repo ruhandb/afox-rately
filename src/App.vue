@@ -1,23 +1,21 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Teste" />
-    <button @click="test">Test</button>
+    <button @click='logout()'>Logout</button>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
 import firebase from './config/firebase'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    
   },
   methods: {
-    test: () => {
-      firebase.firestore().collection("teste").add({date: new Date()});
+    logout: () => {
+      firebase.auth().signOut();
     }
   }
 }
