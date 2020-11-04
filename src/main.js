@@ -5,6 +5,7 @@ import Login from './components/Login'
 import CreateRate from './components/CreateRate'
 import VoteRate from './components/VoteRate'
 import { firebase } from './config/firebase'
+import vuetify from './plugins/vuetify';
 
 const NotFound = { template: '<p>Página não encontrada</p>' }
 
@@ -20,6 +21,7 @@ new Vue({
   data: {
     currentRoute: window.location.pathname
   },
+
   mounted() {
     firebase.auth().onAuthStateChanged(user => {
       console.log("user",user);
@@ -32,6 +34,7 @@ new Vue({
       }
     });
   },
+
   computed: {
     ViewComponent () {
       var pathName = this.getRoutePath();
@@ -68,6 +71,7 @@ new Vue({
       return NotFound;
     }
   },
+
   methods: {
     matchPath(path){
       return this.currentRoute.toLowerCase() === path || this.currentRoute.toLowerCase().startsWith(path + "/") || this.currentRoute.toLowerCase().startsWith(path + "?");
@@ -81,5 +85,7 @@ new Vue({
       return null;
     }
   },
+
+  vuetify,
   render (h) { return h(this.ViewComponent) }
 }).$mount('#app')

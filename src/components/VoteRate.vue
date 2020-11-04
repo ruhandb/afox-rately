@@ -1,4 +1,4 @@
-<template>
+<!--template>
     <div>
         <div>VoteRate</div>
         <div>{{ name }}</div>
@@ -12,6 +12,72 @@
         </div>
     </div>
     
+</template-->
+
+<template>
+    <v-app>
+        <v-card
+            class="mx-auto"
+        >
+        <!--v-system-bar
+            color="indigo darken-2"
+            dark
+        >
+            <v-spacer></v-spacer>
+
+            <v-icon>mdi-window-minimize</v-icon>
+
+            <v-icon>mdi-window-maximize</v-icon>
+
+            <v-icon>mdi-close</v-icon>
+        </v-system-bar-->
+
+        <v-toolbar
+            color="indigo"
+            dark
+        >
+            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+
+            <v-toolbar-title>{{ name }}</v-toolbar-title>
+
+            <v-spacer></v-spacer>
+
+            <v-btn icon>
+            <v-icon>mdi-magnify</v-icon>
+            </v-btn>
+        </v-toolbar>
+
+        <v-container fluid>
+            <v-row dense>
+            <v-col
+                v-for="(item, itemName) in matchToVote.items" :key="itemName"
+                cols="6"
+            >
+                <v-card>
+                <v-img
+                    :src="item.imgUrl"
+                    class="white--text align-end"              
+                    contain
+                    height="256px"
+                    width="256px" 
+                >
+                <!-- img gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"-->
+                    <!--v-card-title v-text="card.title"></v-card-title-->
+                </v-img>
+
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+
+                    <v-btn icon>
+                    <v-icon @click="vote(matchToVote, itemName)">mdi-heart</v-icon>
+                    </v-btn>
+                </v-card-actions>
+                </v-card>
+            </v-col>
+            </v-row>
+        </v-container>
+        </v-card>
+    </v-app>
 </template>
 
 <script>
