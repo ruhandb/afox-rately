@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import firebase from './config/firebase'
+import { firebase } from './config/firebase'
 
 export default {
   name: 'App',

@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import firebase from '../../config/firebase'
+import { firebase, collectionRef, storageUrl } from '../../config/firebase'
 export default {
     name: 'ItemRateView',
     props: {
@@ -24,28 +24,37 @@ export default {
     data() {
         return {
             imageUrl: '',
-            ref: false
+            ref: false,
+            rateItemsRef: collectionRef('RateItems')
+            //rateMatchesRef: collectionRef('RateMatches')
         }
     },
     mounted (){
-        this.ref = firebase.firestore().collection('Rates');
         this.loadImage(this.item.imagePath);
     },
     watch: { 
         item(newVal) {
-            if (newVal.imagePath) {
-                this.loadImage(newVal.imagePath);
-            }
+            console.log("view", newVal);
+            this.loadImage(newVal.imagePath);
         }
     },
     methods: {
         loadImage(imagePath) {
-            firebase.storage().ref(imagePath).getDownloadURL().then(url =>{
-                this.imageUrl = url;
-            });
+            if(imagePath){
+                storageUrl(imagePath).then(url =>{
+                    this.imageUrl = url;
+                });
+            }
         },
         remove() {
-            this.ref.doc(this.rateId).collection('Itens').doc(this.itemId).delete().then(() => {
+            this.rateItemsRef.doc(this.itemId).delete().then(() => {
+                /* this.rateMatchesRef.orderBy(this.itemId).get().then(snaps => {
+                    snaps.forEach(snap => {
+                        this.rateMatchesRef.doc(snap.id).delete().then(()=>{
+                            console.log('delete matches', snap);
+                        });
+                    });
+                }); */
                 firebase.storage().ref(this.item.imagePath).delete();
                 console.log("Document successfully deleted!");
             });

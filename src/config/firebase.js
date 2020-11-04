@@ -3,6 +3,8 @@ import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/storage';
 import 'firebase/auth';
+import Vue from 'vue'
+import { Promise } from 'core-js';
 
 var firebaseConfig = {
     apiKey: "AIzaSyDxmlCVEui9cUkzipZlTP8wE7V0ISpxB6M",
@@ -16,4 +18,40 @@ var firebaseConfig = {
   // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-export default firebase;
+var onSnapshot = (ref, obj, then) => {
+    ref.onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+            Vue.set(obj, change.doc.id, change.doc.data());
+        }
+        if (change.type === "modified") {
+            Vue.set(obj, change.doc.id, change.doc.data());
+        }
+        if (change.type === "removed") {
+            Vue.delete(obj, change.doc.id);
+        }
+        if(then) then(change);
+      });
+  });
+}
+
+var collectionRef = (nameCollection) => {
+  return firebase.firestore().collection(nameCollection);
+}
+
+var cacheUrl = {};
+var storageUrl = (path) => {
+  var url = cacheUrl[path];
+  return new Promise(function(resolve) {
+    if(url){
+      resolve(url);
+    } else {
+      firebase.storage().ref(path).getDownloadURL().then(u => {
+        cacheUrl[path] = u;
+        resolve(u);
+      });
+    }
+  });
+}
+
+export { firebase, onSnapshot, collectionRef, storageUrl };

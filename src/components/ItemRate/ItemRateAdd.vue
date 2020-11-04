@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import firebase from '../../config/firebase'
+import Vue from 'vue'
+import { firebase, collectionRef } from '../../config/firebase'
 export default {
     name: 'ItemRateAdd',
     props: {
@@ -26,11 +27,9 @@ export default {
         return {
             desc: '',
             file: false,
-            ref: false
+            rateItemsRef: collectionRef('RateItems')
+            // rateMatchesRef: collectionRef('RateMatches')
         }
-    },
-    mounted (){
-        this.ref = firebase.firestore().collection('Rates');
     },
     methods: {
         upload(files){
@@ -39,20 +38,38 @@ export default {
             });
         },
         create() {
-            var itensRef = this.ref.doc(this.rateId).collection('Itens');
-            itensRef.add({
-                desc : this.desc,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            this.rateItemsRef.add({
+                desc: this.desc,
+                rateId: this.rateId,
+                uidUser: Vue.prototype.$user.uid,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                votes: 0
             }).then(snap => {
+                //this.createMatches(snap.id);
                 var imagePath = this.rateId + "/" + snap.id;
                 var fileRef = firebase.storage().ref(imagePath);
                 fileRef.put(this.file).then(()=>{
-                    itensRef.doc(snap.id).update({
+                    this.rateItemsRef.doc(snap.id).update({
                         imagePath: imagePath
                     })
                 });
             });
         }
+        /* createMatches(itemId) {
+            this.rateItemsRef.where('rateId', '==', this.rateId).get().then(coll => {
+                coll.forEach(doc => {
+                    if(doc.id != itemId){
+                        var match = {};
+                        match[itemId] = true;
+                        match[doc.id] = true;
+                        match.rateId = this.rateId,
+                        this.rateMatchesRef.add(match);
+                        // doc.data() is never undefined for query doc snapshots
+                        console.log(doc.id, " => ", doc.data());
+                    }
+                });
+            });
+        } */
     }
 }
 </script>

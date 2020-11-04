@@ -6,7 +6,7 @@
 
 <script>
 import Vue from 'vue'
-import firebase from 'firebase';
+import { firebase } from '../config/firebase';
 var firebaseui = require('firebaseui');
 import "firebaseui/dist/firebaseui.css";
 

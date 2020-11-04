@@ -3,7 +3,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import Login from './components/Login'
 import CreateRate from './components/CreateRate'
-import firebase from './config/firebase'
+import VoteRate from './components/VoteRate'
+import { firebase } from './config/firebase'
 
 const NotFound = { template: '<p>Página não encontrada</p>' }
 
@@ -12,6 +13,7 @@ Vue.config.productionTip = false;
 const routes = {
   '/': { component: App },
   '/login': { component: Login },
+  '/vote': { component: VoteRate, query: ['id'], authRequired: true },
   '/rate/edit': { component: CreateRate, query: ['id'], authRequired: true }
 }
 new Vue({
@@ -22,6 +24,7 @@ new Vue({
     firebase.auth().onAuthStateChanged(user => {
       console.log("user",user);
       var pathName = this.getRoutePath();
+      Vue.prototype.$user = user;
       if(!user && routes[pathName] && routes[pathName].authRequired){
         var idxqp = window.location.href.indexOf('?');
         var queryParams = idxqp > 0 ? "&" + window.location.href.substring(idxqp + 1) : "";
