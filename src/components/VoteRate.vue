@@ -1,81 +1,50 @@
-<!--template>
-    <div>
-        <div>VoteRate</div>
-        <div>{{ name }}</div>
-        <button @click="requestVote">next</button>
-        <div>
-            {{ matchToVote.matchId }}
-            <div v-for="(item, itemName) in matchToVote.items" :key="itemName">
-                <img :src="item.imgUrl"/>
-                <button @click="vote(matchToVote, itemName)">VOTE</button>
-            </div>
-        </div>
-    </div>
-    
-</template-->
-
 <template>
     <v-app>
-        <v-card
-            class="mx-auto"
-        >
-        <!--v-system-bar
-            color="indigo darken-2"
-            dark
-        >
-            <v-spacer></v-spacer>
+        <v-card class="mx-auto">
+            <v-toolbar color="indigo" dark>
+                <!--v-app-bar-nav-icon></v-app-bar-nav-icon-->
+                <v-toolbar-title class="mx-auto">{{ name }}</v-toolbar-title>
+                <!-- <v-spacer></v-spacer> -->
+                <!--v-btn icon>
+                <v-icon>mdi-magnify</v-icon>
+                </v-btn-->
+            </v-toolbar>
+            <v-container fluid>
+                <v-row v-if="votesProgress.voting" dense>
+                    <v-col cols="6" >
+                        <v-card :loading="!matchToVote.items.A" :disabled="!matchToVote.items.A">
+                            <v-img :src="matchToVote.items.A ? matchToVote.items.A.imgUrl :''" contain
+                                class="white--text align-end"
+                                height="200px" width="200px"></v-img>
+                            <v-card-actions>
+                                <v-btn class="mx-auto" icon>
+                                    <v-icon @click="vote(matchToVote, 'A')">mdi-heart</v-icon>
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="6" >
+                        <v-card :loading="!matchToVote.items.B" :disabled="!matchToVote.items.B">
+                            <v-img :src="matchToVote.items.B ? matchToVote.items.B.imgUrl :''" contain
+                                class="white--text align-end"
+                                height="200px" width="200px"></v-img>
+                            <v-card-actions>
+                                <v-btn class="mx-auto" icon>
+                                    <v-icon @click="vote(matchToVote, 'B')">mdi-heart</v-icon>
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+                </v-row>
+                <v-row v-else dense>
+                    <v-col cols="12" >
 
-            <v-icon>mdi-window-minimize</v-icon>
-
-            <v-icon>mdi-window-maximize</v-icon>
-
-            <v-icon>mdi-close</v-icon>
-        </v-system-bar-->
-
-        <v-toolbar
-            color="indigo"
-            dark
-        >
-            <v-app-bar-nav-icon></v-app-bar-nav-icon>
-
-            <v-toolbar-title>{{ name }}</v-toolbar-title>
-
-            <v-spacer></v-spacer>
-
-            <v-btn icon>
-            <v-icon>mdi-magnify</v-icon>
-            </v-btn>
-        </v-toolbar>
-
-        <v-container fluid>
-            <v-row dense>
-            <v-col
-                v-for="(item, itemName) in matchToVote.items" :key="itemName"
-                cols="6"
-            >
-                <v-card>
-                <v-img
-                    :src="item.imgUrl"
-                    class="white--text align-end"              
-                    contain
-                    height="256px"
-                    width="256px" 
-                >
-                <!-- img gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"-->
-                    <!--v-card-title v-text="card.title"></v-card-title-->
-                </v-img>
-
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn icon>
-                    <v-icon @click="vote(matchToVote, itemName)">mdi-heart</v-icon>
-                    </v-btn>
-                </v-card-actions>
-                </v-card>
-            </v-col>
-            </v-row>
-        </v-container>
+                    </v-col>
+                </v-row>
+                <v-progress-linear rounded  :value="votesProgress.percent" height="20">
+                    <strong>{{ Math.ceil(votesProgress.percent) }}%</strong>
+                </v-progress-linear>
+            </v-container>
         </v-card>
     </v-app>
 </template>
@@ -89,6 +58,11 @@ export default {
         return {
             name: '',
             rateId: '',
+            votesProgress:{
+                total: 0,
+                atual: 0,
+                percent: 0
+            },
             matchToVote: {
                 matchId: null,
                 items:{}
@@ -116,14 +90,14 @@ export default {
                 if (snap.exists) {
                     var data = snap.data();
                     this.name = data.name;
-                    this.loadMatches();
+                    this.loadItems();
                     this.loadMyVotes();
                 } else {
                     window.location.pathname = '/not-found';
                 }
             })
         },
-        loadMatches(){            
+        loadItems(){            
             onSnapshot(this.rateItemsRef.where('rateId', '==', this.rateId), this.items,
                 () => {
                     this.createMatchesToVote();
@@ -187,6 +161,12 @@ export default {
                     Vue.delete(this.matchesToVote, vValue.matchId);                
                 });
             });
+            this.votesProgress.total = Object.keys(matches).length;
+            this.votesProgress.atual = Object.keys(this.matchesToVote).length;
+            this.votesProgress.voting = Object.keys(this.matchesToVote).length != 0;
+            this.votesProgress.percent = 100 - (this.votesProgress.atual / this.votesProgress.total * 100);
+            console.log("votesProgress", this.votesProgress);
+
 
             if(Object.values(this.matchesToVote).length == 0) {
                 this.matchToVote.matchId = null;
@@ -196,17 +176,18 @@ export default {
             }
         },
         requestVote(){
-            var matchesKeys = Object.keys(this.matchesToVote);
-            var totalVotes = matchesKeys.length;
-            var ramdomidx = this.getRandomInt(0, totalVotes - 1);
-            console.log("ramdomidx", ramdomidx);
-            var match = this.matchesToVote[matchesKeys[ramdomidx]];
-            
-            this.matchToVote.matchId = matchesKeys[ramdomidx];
-            var that = this;
-            //Vue.set(this.matchToVote, 'items', {});
-            console.log("match", match);
-            if(match){
+            if(this.votesProgress.voting) {
+                var matchesKeys = Object.keys(this.matchesToVote);
+                var totalVotes = matchesKeys.length;
+                var ramdomidx = this.getRandomInt(0, totalVotes - 1);
+                console.log("ramdomidx", ramdomidx);
+                var match = this.matchesToVote[matchesKeys[ramdomidx]];
+                
+                this.matchToVote.matchId = matchesKeys[ramdomidx];
+                var that = this;
+                //Vue.set(this.matchToVote, 'items', {});
+                console.log("match", match);
+            //if(match){
                 Object.keys(match).filter(k => k != "rateId").forEach(itemId => {
                     storageUrl(this.rateId + "/" + itemId).then(url => {
                         if(Object.values(this.matchesToVote).length > 0){
@@ -221,6 +202,8 @@ export default {
                         }
                     })
                 });
+            } else {
+                window.setTimeout(this.requestVote, 2000);
             }
         },
         getRandomInt(min, max) {
