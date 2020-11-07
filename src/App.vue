@@ -10,7 +10,7 @@
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="./assets/logo_.png"
           transition="scale-transition"
           width="40"
         />
@@ -19,9 +19,9 @@
           alt="Vuetify Name"
           class="shrink mt-1 hidden-sm-and-down"
           contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
+          min-width="80"
+          src="./assets/logo_text.png"
+          width="80"
         />
       </div>
 
@@ -33,8 +33,9 @@
     </v-app-bar>
 
     <v-main>
-     
-      <component v-bind:is="selectedRoute.component"></component>
+      <v-container>
+        <component v-bind:is="selectedRoute.component"></component>
+      </v-container>  
     </v-main>
   </v-app>
 </template>
@@ -45,12 +46,14 @@ import Vue from 'vue'
 import Login from './components/Login'
 import CreateRate from './components/CreateRate'
 import VoteRate from './components/VoteRate'
+import RankRate from './components/RankRate/RankRate'
 import { firebase } from './config/firebase'
 
 const routes = {
   //'/': { component: App },
   '/login': { component: Login },
   '/vote': { component: VoteRate, query: ['id'], authRequired: true },
+  '/rank': { component: RankRate, query: ['id'], authRequired: true },
   '/rate/edit': { component: CreateRate, query: ['id'], authRequired: true }
 }
 

@@ -1,52 +1,50 @@
 <template>
-    <v-app>
-        <v-card class="mx-auto">
-            <v-toolbar color="indigo" dark>
-                <!--v-app-bar-nav-icon></v-app-bar-nav-icon-->
-                <v-toolbar-title class="mx-auto">{{ name }}</v-toolbar-title>
-                <!-- <v-spacer></v-spacer> -->
-                <!--v-btn icon>
-                <v-icon>mdi-magnify</v-icon>
-                </v-btn-->
-            </v-toolbar>
-            <v-container fluid>
-                <v-row v-if="votesProgress.voting" dense>
-                    <v-col cols="6" >
-                        <v-card :loading="!matchToVote.items.A" :disabled="!matchToVote.items.A">
-                            <v-img :src="matchToVote.items.A ? matchToVote.items.A.imgUrl :''" contain
-                                class="white--text align-end"
-                                height="200px" width="200px"></v-img>
-                            <v-card-actions>
-                                <v-btn class="mx-auto" icon>
-                                    <v-icon @click="vote(matchToVote, 'A')">mdi-heart</v-icon>
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="6" >
-                        <v-card :loading="!matchToVote.items.B" :disabled="!matchToVote.items.B">
-                            <v-img :src="matchToVote.items.B ? matchToVote.items.B.imgUrl :''" contain
-                                class="white--text align-end"
-                                height="200px" width="200px"></v-img>
-                            <v-card-actions>
-                                <v-btn class="mx-auto" icon>
-                                    <v-icon @click="vote(matchToVote, 'B')">mdi-heart</v-icon>
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-col>
-                </v-row>
-                <v-row v-else dense>
-                    <v-col cols="12" >
-
-                    </v-col>
-                </v-row>
-                <v-progress-linear rounded  :value="votesProgress.percent" height="20">
-                    <strong>{{ Math.ceil(votesProgress.percent) }}%</strong>
-                </v-progress-linear>
-            </v-container>
-        </v-card>
-    </v-app>
+    <v-card max-width="500px" class="mx-auto">
+        <v-toolbar color="indigo" dark>
+            <!--v-app-bar-nav-icon></v-app-bar-nav-icon-->
+            <v-toolbar-title class="mx-auto">{{ name }}</v-toolbar-title>
+            <!-- <v-spacer></v-spacer> -->
+            <!--v-btn icon>
+            <v-icon>mdi-magnify</v-icon>
+            </v-btn-->
+        </v-toolbar>
+        <v-container fluid>
+            <v-row v-if="votesProgress.voting" dense>
+                <v-col cols="6" >
+                    <v-card :loading="!matchToVote.items.A" :disabled="!matchToVote.items.A">
+                        <v-img :src="matchToVote.items.A ? matchToVote.items.A.imgUrl :''" contain
+                            class="white--text align-end mx-auto"
+                            height="200px" width="200px"></v-img>
+                        <v-card-actions>
+                            <v-btn class="mx-auto" icon>
+                                <v-icon @click="vote(matchToVote, 'A')">mdi-heart</v-icon>
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-col>
+                <v-col cols="6" >
+                    <v-card :loading="!matchToVote.items.B" :disabled="!matchToVote.items.B">
+                        <v-img :src="matchToVote.items.B ? matchToVote.items.B.imgUrl :''" contain
+                            class="white--text align-end mx-auto"
+                            height="200px" width="200px"></v-img>
+                        <v-card-actions>
+                            <v-btn class="mx-auto" icon>
+                                <v-icon @click="vote(matchToVote, 'B')">mdi-heart</v-icon>
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-col>
+            </v-row>
+            <v-row v-else dense>
+                <v-col cols="12" >
+                    <v-btn :href="'/rank/'+rateId" text color="primary">Ver mais votados.</v-btn>
+                </v-col>
+            </v-row>
+            <v-progress-linear rounded  :value="votesProgress.percent" height="20">
+                <strong>{{ Math.ceil(votesProgress.percent) }}%</strong>
+            </v-progress-linear>
+        </v-container>
+    </v-card>
 </template>
 
 <script>
@@ -90,8 +88,10 @@ export default {
                 if (snap.exists) {
                     var data = snap.data();
                     this.name = data.name;
-                    this.loadItems();
-                    this.loadMyVotes();
+                    if (data.iniciada) {
+                        this.loadItems();
+                        this.loadMyVotes();                        
+                    }
                 } else {
                     window.location.pathname = '/not-found';
                 }
@@ -190,7 +190,7 @@ export default {
             //if(match){
                 Object.keys(match).filter(k => k != "rateId").forEach(itemId => {
                     storageUrl(this.rateId + "/" + itemId).then(url => {
-                        if(Object.values(this.matchesToVote).length > 0){
+                        if(this.votesProgress.voting){
                             var itemName = "A"
                             if (that.matchToVote.items[itemName]) {
                                 itemName = "B"

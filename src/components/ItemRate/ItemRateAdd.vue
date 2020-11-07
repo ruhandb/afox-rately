@@ -1,17 +1,35 @@
 <template>
-    <div>
-        <div>
-            <label>Descrição: </label>
-            <input type="text" v-model="desc" >
-        </div>
-        <div>
-            <label>Arquivo: </label>
-            <input type="file" @change="upload($event.target.files)" >
-        </div>
-        <div>
-            <button @click="create()">Salvar</button>
-        </div>
-    </div>
+    <v-card>
+        <v-card-title>Novo item</v-card-title>
+        <v-card-text>
+            <v-form v-model="valid" ref="form">
+                <v-text-field
+                    v-model="desc"
+                    label="Descrição"
+                    hide-details="auto"
+                ></v-text-field>
+                <v-file-input
+                    v-model="file"
+                    :rules="rules"
+                    accept="image/png, image/jpeg"
+                    prepend-icon="mdi-file-image"
+                    label="Imagem"
+                ></v-file-input>                
+            </v-form>
+        </v-card-text>
+        <v-card-actions>
+            <v-btn
+            fab
+            dark
+            small
+            color="primary"
+            class="ml-auto" @click="create()">
+            <v-icon dark>
+                mdi-plus
+            </v-icon>
+            </v-btn>
+        </v-card-actions>
+    </v-card>
 </template>
 
 <script>
@@ -25,18 +43,18 @@ export default {
     },
     data() {
         return {
+            valid: false,
             desc: '',
-            file: false,
-            rateItemsRef: collectionRef('RateItems')
+            file: null,
+            rateItemsRef: collectionRef('RateItems'),
+            rules: [
+                value => !!value || 'Obrigatório.',
+                value => !value || value.size < 1000000 || 'A imagem de ter menos de 1 MB!',
+            ],
             // rateMatchesRef: collectionRef('RateMatches')
         }
     },
     methods: {
-        upload(files){
-            files.forEach((file) => {
-                this.file = file;
-            });
-        },
         create() {
             this.rateItemsRef.add({
                 desc: this.desc,
@@ -53,6 +71,7 @@ export default {
                         imagePath: imagePath
                     })
                 });
+                this.$refs.form.reset();
             });
         }
         /* createMatches(itemId) {

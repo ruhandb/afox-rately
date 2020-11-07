@@ -1,16 +1,41 @@
 <template>
-  <div>CreateRate
-      <div>{{ id }}</div>
-      <div>
-          <label>Nome:</label>
-          <input :disabled="!createMode" v-model="name">
-          <button v-if="createMode" @click="create">Add</button>          
-      </div>
-    <div>
-        <ItemRateAdd :rateId="id" />
-        <ItemRateView v-for="(item, itemId) in itens" :rateId="id" :item="item" :itemId="itemId" :key="itemId" />
-    </div>
-  </div>
+  <v-card class="mx-auto">
+      <v-card-title>Editar Rate</v-card-title>
+      <v-card-text>
+        <v-row>
+            <v-col cols="12">
+                
+                <v-form ref="form">
+                    <v-text-field
+                        v-model="name"
+                        label="Nome"
+                        :readonly="!createMode"
+                        hide-details="auto"
+                    ></v-text-field>
+                    
+                </v-form>
+            </v-col>
+            
+        </v-row>
+        <v-row>
+            <v-col cols="12">
+                <v-btn v-if="createMode" @click="create">Criar</v-btn>
+                <v-btn v-else-if="!iniciada" @click="iniciar">Iniciar votação</v-btn>
+                <v-btn v-else :href="'/vote/'+id" text color="primary">Votar</v-btn>
+            </v-col>
+        </v-row>
+        <v-row v-if="!!id">
+            <v-col cols="12">
+                <ItemRateAdd :rateId="id" />
+            </v-col>
+        </v-row>
+        <v-row v-if="!!id">
+            <v-col  v-for="(item, itemId) in itens" :key="itemId">
+                <ItemRateView  :rateId="id" :item="item" :itemId="itemId" :iniciada="iniciada"   />
+            </v-col>
+        </v-row>
+      </v-card-text>
+  </v-card>
   
 </template>
 
@@ -25,7 +50,8 @@ export default {
     data() {
         return {
             createMode: true,
-            id: '',
+            iniciada: false,
+            id: null,
             name: '',
             ratesRef: collectionRef("Rates"),
             rateItemsRef: collectionRef('RateItems'),
@@ -46,6 +72,7 @@ export default {
                     var data = snap.data();
                     this.id = id;
                     this.name = data.name;
+                    this.iniciada = data.iniciada;
                     this.bindItems();                    
                 } else {
                     window.location.pathname = Vue.prototype.$currentRoute;
@@ -57,6 +84,7 @@ export default {
             this.ratesRef.add({
                 name: that.name,
                 uidUser: Vue.prototype.$user.uid,
+                iniciada: false,
                 dateCreated: firebase.firestore.Timestamp.fromDate(new Date())
             }).then(snap => {
                 this.id = snap.id;
@@ -64,6 +92,10 @@ export default {
                 this.createMode = false;
                 this.bindItems();
             });
+        },
+        iniciar() {
+            this.iniciada = true;
+            this.ratesRef.doc(this.id).update({iniciada: this.iniciada});
         },
         bindItems() {
             onSnapshot(this.rateItemsRef.where('rateId', '==', this.id), this.itens);

@@ -1,15 +1,24 @@
 <template>
-    <div>
-        <div>
-            <img :src="imageUrl"/>
-        </div>
-        <div>
-            <label>{{item.desc}}</label>
-        </div>
-        <div>
-            <button @click="remove()">Excluir</button>
-        </div>
-    </div>
+    <v-card :loading="false" :disabled="false">
+        <v-img :src="imageUrl" contain
+            class="white--text align-end mx-auto"
+            height="200px" width="200px"></v-img>
+        <v-fab-transition v-if="!iniciada">
+            <v-btn
+                v-show="!!imageUrl"
+                color="error"
+                fab
+                dark
+                x-small
+                absolute
+                top
+                right
+                @click="remove()"
+            >
+                <v-icon>mdi-close</v-icon>
+            </v-btn>
+            </v-fab-transition>
+    </v-card>
 </template>
 
 <script>
@@ -19,7 +28,8 @@ export default {
     props: {
         rateId: String,
         itemId: String,
-        item: Object
+        item: Object,
+        iniciada: Boolean
     },
     data() {
         return {
