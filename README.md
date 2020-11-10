@@ -1,4 +1,4 @@
-# afox-rately
+# afx-rately
 
 ## Project setup
 ```

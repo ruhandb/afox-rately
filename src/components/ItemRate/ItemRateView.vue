@@ -1,5 +1,5 @@
 <template>
-    <v-card :loading="false" :disabled="false">
+    <v-card :loading="false" :disabled="false" height="200px" width="200px">
         <v-img :src="imageUrl" contain
             class="white--text align-end mx-auto"
             height="200px" width="200px"></v-img>

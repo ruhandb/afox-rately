@@ -13,14 +13,24 @@ var firebaseConfig = {
     projectId: "afox-rately",
     storageBucket: "afox-rately.appspot.com",
     messagingSenderId: "849797888211",
-    appId: "1:849797888211:web:74f4172c30094dc3de7c26"
+    appId: "1:849797888211:web:74f4172c30094dc3de7c26",
+    measurementId: "G-59Y2BNQJN1"
   };
   // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+var listenerCount;
+var rqCount = 0;
+var requestCounter = (then) => {
+  listenerCount = then;
+}
+
 var onSnapshot = (ref, obj, then) => {
     ref.onSnapshot((snapshot) => {
       snapshot.docChanges().forEach((change) => {
+        rqCount++;
+        if(listenerCount) listenerCount(rqCount);
+        Vue.prototype.$requestsCount++;
         if (change.type === "added") {
             Vue.set(obj, change.doc.id, change.doc.data());
         }
@@ -32,6 +42,17 @@ var onSnapshot = (ref, obj, then) => {
         }
         if(then) then(change);
       });
+  });
+}
+
+var findAll = (ref, obj, then) => {
+  ref.get().then(items => {
+    items.forEach(item => {
+      rqCount++;
+      if(listenerCount) listenerCount(rqCount);
+      Vue.set(obj, item.id, item.data());
+    });
+    if(then) then(items);
   });
 }
 
@@ -54,4 +75,6 @@ var storageUrl = (path) => {
   });
 }
 
-export { firebase, onSnapshot, collectionRef, storageUrl };
+
+
+export { firebase, onSnapshot, collectionRef, storageUrl, findAll, requestCounter };

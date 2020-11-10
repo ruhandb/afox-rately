@@ -43,13 +43,24 @@
             <v-progress-linear rounded  :value="votesProgress.percent" height="20">
                 <strong>{{ Math.ceil(votesProgress.percent) }}%</strong>
             </v-progress-linear>
+            <!-- Rately - Votação - Quadrado -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-2437559594817961"
+                data-ad-slot="8468662161"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+                 <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+                console.log(adsbygoogle);
+                </script>
         </v-container>
     </v-card>
 </template>
 
 <script>
 import Vue from 'vue'
-import { firebase, onSnapshot, collectionRef, storageUrl } from '../config/firebase'
+import { firebase, onSnapshot, collectionRef, storageUrl, findAll } from '../config/firebase'
 export default {
     name: "VoteRate",
     data() {
@@ -104,33 +115,41 @@ export default {
                 });
         },
         loadMyVotes(){
-            onSnapshot(this.rateVotesRef.where('uidUser', '==', Vue.prototype.$user.uid).where('rateId', '==', this.rateId), this.myVotes,
+            findAll(this.rateVotesRef.where('uidUser', '==', Vue.prototype.$user.uid).where('rateId', '==', this.rateId), this.myVotes,
                 () => {
                     this.createMatchesToVote();
-                });
+                }
+            );
+            /* onSnapshot(this.rateVotesRef.where('uidUser', '==', Vue.prototype.$user.uid).where('rateId', '==', this.rateId), this.myVotes,
+                () => {
+                    this.createMatchesToVote();
+                }); */
         },
         vote(match, itemName){
             const increment = firebase.firestore.FieldValue.increment(1);
             var itemId =  match.items[itemName].itemId;
             //const decrement = firebase.firestore.FieldValue.increment(-1);
 
-
+            const voteId = Vue.prototype.$user.uid + '-' + match.matchId;
+            const myVoteRef = this.rateVotesRef.doc(voteId);
+            const myVote = {
+                'uidUser': Vue.prototype.$user.uid,
+                'rateId': this.rateId,
+                'matchId': match.matchId,
+                'itemId': itemId,
+                'vote': 1
+            }
             firebase.firestore().runTransaction(transaction => {
-                return transaction.get(this.rateVotesRef.doc(Vue.prototype.$user.uid + '-' + match.matchId)).then(vote => {
+                return transaction.get(myVoteRef).then(vote => {
                     if (!vote.exists) {
-                        transaction.set(this.rateVotesRef.doc(Vue.prototype.$user.uid + '-' + match.matchId), {
-                            'uidUser': Vue.prototype.$user.uid,
-                            'rateId': this.rateId,
-                            'matchId': match.matchId,
-                            'itemId': itemId,
-                            'vote': 1
-                        });
+                        transaction.set(myVoteRef, myVote);
                         transaction.update(this.rateItemsRef.doc(itemId), { votes: increment });
                    }
-               })
+               });
            }).then(()=>{
                this.matchToVote.matchId = null;
                Vue.set(this.matchToVote, 'items', {});
+               Vue.set(this.myVotes, voteId, myVote);
                window.setTimeout(this.requestVote, 2000);
            });
         },

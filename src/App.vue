@@ -23,9 +23,15 @@
           src="./assets/logo_text.png"
           width="80"
         />
+        
+        <div
+        class="pa-4 secondary text-no-wrap rounded-pill"      >
+        {{requestsCount}}
+      </div>
       </div>
 
       <v-spacer></v-spacer>
+      <div></div>
        <v-btn text @click="logout()">
          <span class="mr-2">Logout</span>
          <v-icon>mdi-login-variant</v-icon>
@@ -40,6 +46,7 @@
   </v-app>
 </template>
 
+<script data-ad-client="ca-pub-2437559594817961" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <script>
 import Vue from 'vue'
 //import App from './App.vue'
@@ -47,7 +54,7 @@ import Login from './components/Login'
 import CreateRate from './components/CreateRate'
 import VoteRate from './components/VoteRate'
 import RankRate from './components/RankRate/RankRate'
-import { firebase } from './config/firebase'
+import { firebase, requestCounter } from './config/firebase'
 
 const routes = {
   //'/': { component: App },
@@ -75,6 +82,10 @@ export default {
         var queryParams = idxqp > 0 ? "&" + window.location.href.substring(idxqp + 1) : "";
         window.location.href = '/login?redirect=' + window.location.pathname + queryParams;
       }
+    });
+
+    requestCounter(count => {
+      this.requestsCount = count;
     });
 
     this.selectedRoute.component = this.ViewComponent();
@@ -131,7 +142,8 @@ export default {
   },
   data: () => ({
     selectedRoute : {component:null},
-    currentRoute: window.location.pathname
+    currentRoute: window.location.pathname,
+    requestsCount: 0
   }),
 };
 </script>

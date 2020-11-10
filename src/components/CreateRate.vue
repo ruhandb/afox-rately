@@ -4,6 +4,19 @@
       <v-card-text>
         <v-row>
             <v-col cols="12">
+                <ins class="adsbygoogle"
+                    style="display:block"
+                    data-ad-client="ca-pub-2437559594817961"
+                    data-ad-slot="7361262926"
+                    data-ad-format="auto"
+                    data-full-width-responsive="true"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </v-col>
+        </v-row>
+        <v-row>
+            <v-col cols="12">
                 
                 <v-form ref="form">
                     <v-text-field
@@ -24,6 +37,7 @@
                 <v-btn v-else :href="'/vote/'+id" text color="primary">Votar</v-btn>
             </v-col>
         </v-row>
+        
         <v-row v-if="!!id">
             <v-col cols="12">
                 <ItemRateAdd :rateId="id" />
