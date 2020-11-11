@@ -4,15 +4,7 @@
       <v-card-text>
         <v-row>
             <v-col cols="12">
-                <ins class="adsbygoogle"
-                    style="display:block"
-                    data-ad-client="ca-pub-2437559594817961"
-                    data-ad-slot="7361262926"
-                    data-ad-format="auto"
-                    data-full-width-responsive="true"></ins>
-                <script>
-                    (adsbygoogle = window.adsbygoogle || []).push({});
-                </script>
+                <GoogleAds adSlot="7361262926"></GoogleAds>
             </v-col>
         </v-row>
         <v-row>
@@ -58,9 +50,11 @@ import Vue from 'vue'
 import { firebase, onSnapshot, collectionRef } from '../config/firebase'
 import ItemRateAdd from './ItemRate/ItemRateAdd'
 import ItemRateView from './ItemRate/ItemRateView'
+import GoogleAds from './Util/GoogleAds'
+
 export default {
     name: "CreateRate",
-    components: { ItemRateAdd, ItemRateView },
+    components: { ItemRateAdd, ItemRateView, GoogleAds },
     data() {
         return {
             createMode: true,

@@ -44,16 +44,7 @@
                 <strong>{{ Math.ceil(votesProgress.percent) }}%</strong>
             </v-progress-linear>
             <!-- Rately - Votação - Quadrado -->
-            <ins class="adsbygoogle"
-                style="display:block"
-                data-ad-client="ca-pub-2437559594817961"
-                data-ad-slot="8468662161"
-                data-ad-format="auto"
-                data-full-width-responsive="true"></ins>
-                 <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-                console.log(adsbygoogle);
-                </script>
+            <GoogleAds adSlot="8468662161"></GoogleAds>
         </v-container>
     </v-card>
 </template>
@@ -61,8 +52,12 @@
 <script>
 import Vue from 'vue'
 import { firebase, onSnapshot, collectionRef, storageUrl, findAll } from '../config/firebase'
+import GoogleAds from './Util/GoogleAds'
+
+
 export default {
     name: "VoteRate",
+    components: {GoogleAds},
     data() {
         return {
             name: '',
