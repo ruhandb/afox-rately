@@ -1,10 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
@@ -23,68 +19,61 @@
           src="./assets/logo_text.png"
           width="80"
         />
-        
-        <div
-        class="pa-4 secondary text-no-wrap rounded-pill"      >
-        {{requestsCount}}
-      </div>
+
+        <div class="pa-4 secondary text-no-wrap rounded-pill">
+          {{ requestsCount }}
+        </div>
       </div>
 
       <v-spacer></v-spacer>
       <div></div>
-       <v-btn text @click="logout()">
-         <span class="mr-2">Logout</span>
-         <v-icon>mdi-login-variant</v-icon>
-       </v-btn>
+      <v-btn text @click="logout()">
+        <span class="mr-2">Logout</span>
+        <v-icon>mdi-login-variant</v-icon>
+      </v-btn>
     </v-app-bar>
 
     <v-main>
       <v-container>
         <component v-bind:is="selectedRoute.component"></component>
-      </v-container>  
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
-<script data-ad-client="ca-pub-2437559594817961" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <script>
-import Vue from 'vue'
-//import App from './App.vue'
-import Login from './components/Login'
-import CreateRate from './components/CreateRate'
-import VoteRate from './components/VoteRate'
-import RankRate from './components/RankRate/RankRate'
-import { firebase, requestCounter } from './config/firebase'
+import Vue from "vue";
+import { firebase, requestCounter } from "./config/firebase";
+import routes from "./config/routes";
 
-const routes = {
+/* const routes = {
   //'/': { component: App },
-  '/login': { component: Login },
-  '/vote': { component: VoteRate, query: ['id'], authRequired: true },
-  '/rank': { component: RankRate, query: ['id'], authRequired: true },
-  '/rate/edit': { component: CreateRate, query: ['id'], authRequired: true }
-}
+  "/login": { component: Login },
+  "/vote": { component: VoteRate, query: ["id"], authRequired: true },
+  "/rank": { component: RankRate, query: ["id"], authRequired: true },
+  "/rate/edit": { component: CreateRate, query: ["id"], authRequired: true },
+}; */
 
-const NotFound = { template: '<p>Página não encontrada</p>' }
+const NotFound = { template: "<p>Página não encontrada</p>" };
 
 export default {
-  name: 'App',
+  name: "App",
 
-  components: {
-    Login,VoteRate,CreateRate
-  },
   mounted() {
-    firebase.auth().onAuthStateChanged(user => {
-      console.log("user",user);
+    firebase.auth().onAuthStateChanged((user) => {
+      console.log("user", user);
       var pathName = this.getRoutePath();
       Vue.prototype.$user = user;
-      if(!user && routes[pathName] && routes[pathName].authRequired){
-        var idxqp = window.location.href.indexOf('?');
-        var queryParams = idxqp > 0 ? "&" + window.location.href.substring(idxqp + 1) : "";
-        window.location.href = '/login?redirect=' + window.location.pathname + queryParams;
+      if (!user && routes[pathName] && routes[pathName].authRequired) {
+        var idxqp = window.location.href.indexOf("?");
+        var queryParams =
+          idxqp > 0 ? "&" + window.location.href.substring(idxqp + 1) : "";
+        window.location.href =
+          "/login?redirect=" + window.location.pathname + queryParams;
       }
     });
 
-    requestCounter(count => {
+    requestCounter((count) => {
       this.requestsCount = count;
     });
 
@@ -94,39 +83,57 @@ export default {
     logout: () => {
       firebase.auth().signOut();
     },
-    matchPath(path){
-      return this.currentRoute.toLowerCase() === path || this.currentRoute.toLowerCase().startsWith(path + "/") || this.currentRoute.toLowerCase().startsWith(path + "?");
+    matchPath(path) {
+      return (
+        this.currentRoute.toLowerCase() === path ||
+        this.currentRoute.toLowerCase().startsWith(path + "/") ||
+        this.currentRoute.toLowerCase().startsWith(path + "?")
+      );
     },
-    getRoutePath(){
+    getRoutePath() {
       for (const path of Object.keys(routes).reverse()) {
-        if(this.matchPath(path)){
+        if (this.matchPath(path)) {
           return path;
         }
       }
       return null;
     },
-    ViewComponent () {
+    ViewComponent() {
       var pathName = this.getRoutePath();
       const route = routes[pathName];
-      if(route) {
-        var queryObj = {}
-        var idxqp = window.location.href.indexOf('?');
-        if(route.query) {
-          var pathParams = this.currentRoute === pathName ? "" : this.currentRoute.substring(pathName.length + 1, idxqp < 0 ? this.currentRoute.length : idxqp).split('/');
+      if (route) {
+        var queryObj = {};
+        var idxqp = window.location.href.indexOf("?");
+        if (route.query) {
+          var pathParams =
+            this.currentRoute === pathName
+              ? ""
+              : this.currentRoute
+                  .substring(
+                    pathName.length + 1,
+                    idxqp < 0 ? this.currentRoute.length : idxqp
+                  )
+                  .split("/");
           route.query.forEach((value, index) => {
-            if(pathParams[index]) {
+            if (pathParams[index]) {
               queryObj[value] = pathParams[index];
             }
-          });            
+          });
         }
         var queryParamsStr = window.location.href.substring(idxqp + 1);
-        var queryParams = idxqp > 0 ? window.location.href.substring(idxqp + 1).split('&') : [];
-        
-        if(queryParamsStr.length > 0 && queryParamsStr.startsWith('redirect')) {
-          var idxeq = queryParamsStr.indexOf('=');
-          queryObj["redirect"] = queryParamsStr.substring(idxeq + 1).replace('&', '?');
-        }else{
-          queryParams.forEach(value => {
+        var queryParams =
+          idxqp > 0 ? window.location.href.substring(idxqp + 1).split("&") : [];
+
+        if (
+          queryParamsStr.length > 0 &&
+          queryParamsStr.startsWith("redirect")
+        ) {
+          var idxeq = queryParamsStr.indexOf("=");
+          queryObj["redirect"] = queryParamsStr
+            .substring(idxeq + 1)
+            .replace("&", "?");
+        } else {
+          queryParams.forEach((value) => {
             var kv = value.split("=");
             queryObj[kv[0]] = kv[1];
           });
@@ -134,16 +141,16 @@ export default {
 
         Vue.prototype.$queryParams = queryObj;
         Vue.prototype.$currentRoute = pathName;
-        console.log("$queryParams",queryObj);
+        console.log("$queryParams", queryObj);
         return route.component;
       }
       return NotFound;
-    }
+    },
   },
   data: () => ({
-    selectedRoute : {component:null},
+    selectedRoute: { component: null },
     currentRoute: window.location.pathname,
-    requestsCount: 0
+    requestsCount: 0,
   }),
 };
 </script>
