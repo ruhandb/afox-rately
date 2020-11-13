@@ -60,7 +60,7 @@
         <strong>{{ Math.ceil(votesProgress.percent) }}%</strong>
       </v-progress-linear>
       <!-- Rately - Votação - Quadrado -->
-      <GoogleAds adSlot="8468662161"></GoogleAds>
+      <!-- <GoogleAds adSlot="8468662161"></GoogleAds> -->
     </v-container>
   </v-card>
 </template>
@@ -74,11 +74,11 @@ import {
   storageUrl,
   findAll,
 } from "./../config/firebase";
-import GoogleAds from "./../components/util/GoogleAds";
+/* import GoogleAds from "./../components/util/GoogleAds"; */
 
 export default {
   name: "VoteRate",
-  components: { GoogleAds },
+  /* components: { GoogleAds }, */
   data() {
     return {
       name: "",

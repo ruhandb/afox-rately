@@ -8,7 +8,7 @@
       width="200px"
     ></v-img>
     <v-divider></v-divider>
-    <v-card-text >{{ item.desc }}</v-card-text>
+    <v-card-text class="d-inline-block text-truncate">{{ item.desc }}</v-card-text>
     
     <v-fab-transition v-if="!iniciada">
       <v-btn

@@ -8,9 +8,9 @@
       height="200px"
       width="200px"
     ></v-img>
-    <div style="height: 200px"
+    <div
+      style="height: 200px; width=200px"
       v-else
-      width="200px"
       class="d-flex justify-center align-center"
     >
       <v-file-input
@@ -25,7 +25,9 @@
       ></v-file-input>
     </div>
     <v-divider></v-divider>
-    <v-card-text>Selecione uma Imagem</v-card-text>
+    <v-card-text class="d-inline-block text-truncate">
+      {{ file ? 'Imagem selecionada' : 'Selecione uma Imagem'}}      
+    </v-card-text>
     <v-fab-transition>
       <v-btn
         v-show="!!file"
@@ -35,7 +37,7 @@
         x-small
         absolute
         bottom
-        center
+        right
         @click="file = null"
         class="mr-10"
       >
@@ -53,7 +55,7 @@
             x-small
             absolute
             bottom
-            center
+            right
             v-bind="attrs"
             v-on="on"
             class="ml-10"
@@ -64,8 +66,8 @@
       </template>
       <v-card>
         <!-- <v-card-title>
-          <span class="headline">User Profile</span>
-        </v-card-title> -->
+        <span class="headline">User Profile</span>
+      </v-card-title> -->
         <v-card-text>
           <v-container>
             <v-row>
@@ -103,6 +105,8 @@
 <script>
 import Vue from "vue";
 import { firebase, collectionRef } from "../../config/firebase";
+import { resizeImage } from "../../helpers/resizeImage"
+
 export default {
   name: "ItemRateAdd",
   props: {
@@ -114,6 +118,7 @@ export default {
       valid: false,
       desc: "",
       file: null,
+      blob: null,
       imgSrc: "",
       rateItemsRef: collectionRef("RateItems"),
       rules: [
@@ -127,11 +132,10 @@ export default {
   },
   methods: {
     change(file) {
-      var fileReader = new FileReader();
-      fileReader.addEventListener("load", (e) => {
-        this.imgSrc = e.target.result;
-      });
-      fileReader.readAsDataURL(file);
+        resizeImage(file, 200, 200).then(({blob, dataURI}) => {
+          this.imgSrc = dataURI;
+          this.blob = blob;
+        }); 
     },
     create() {
       this.rateItemsRef
@@ -146,17 +150,21 @@ export default {
           //this.createMatches(snap.id);
           var imagePath = this.rateId + "/" + snap.id;
           var fileRef = firebase.storage().ref(imagePath);
-          fileRef.put(this.file).then(() => {
+          fileRef.put(this.blob).then(() => {
             this.rateItemsRef.doc(snap.id).update({
               imagePath: imagePath,
             });
           });
           this.file = null;
+          this.desc = '';
         });
     },
   },
 };
+
 </script>
 
 <style>
 </style>
+
+
