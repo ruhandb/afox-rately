@@ -46,14 +46,6 @@ import Vue from "vue";
 import { firebase, requestCounter } from "./config/firebase";
 import routes from "./config/routes";
 
-/* const routes = {
-  //'/': { component: App },
-  "/login": { component: Login },
-  "/vote": { component: VoteRate, query: ["id"], authRequired: true },
-  "/rank": { component: RankRate, query: ["id"], authRequired: true },
-  "/rate/edit": { component: CreateRate, query: ["id"], authRequired: true },
-}; */
-
 const NotFound = { template: "<p>Página não encontrada</p>" };
 
 export default {

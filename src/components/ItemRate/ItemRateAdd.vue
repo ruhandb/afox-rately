@@ -26,7 +26,7 @@
     </div>
     <v-divider></v-divider>
     <v-card-text class="d-inline-block text-truncate">
-      {{ file ? 'Imagem selecionada' : 'Selecione uma Imagem'}}      
+      {{ file ? "Imagem selecionada" : "Selecione uma Imagem" }}
     </v-card-text>
     <v-fab-transition>
       <v-btn
@@ -69,17 +69,12 @@
         <span class="headline">User Profile</span>
       </v-card-title> -->
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col>
-                <v-text-field
-                  label="Descrição da imagem"
-                  v-model="desc"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
+          <v-card-title>Dados Item</v-card-title>
+          <v-text-field
+            label="Descrição da imagem"
+            v-model="desc"
+            required
+          ></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -105,7 +100,7 @@
 <script>
 import Vue from "vue";
 import { firebase, collectionRef } from "../../config/firebase";
-import { resizeImage } from "../../helpers/resizeImage"
+import { resizeImage } from "../../helpers/resizeImage";
 
 export default {
   name: "ItemRateAdd",
@@ -132,10 +127,10 @@ export default {
   },
   methods: {
     change(file) {
-        resizeImage(file, 200, 200).then(({blob, dataURI}) => {
-          this.imgSrc = dataURI;
-          this.blob = blob;
-        }); 
+      resizeImage(file, 200, 200).then(({ blob, dataURI }) => {
+        this.imgSrc = dataURI;
+        this.blob = blob;
+      });
     },
     create() {
       this.rateItemsRef
@@ -156,12 +151,11 @@ export default {
             });
           });
           this.file = null;
-          this.desc = '';
+          this.desc = "";
         });
     },
   },
 };
-
 </script>
 
 <style>
